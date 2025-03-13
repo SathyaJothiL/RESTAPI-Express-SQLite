@@ -31,4 +31,4 @@ db.run(sql,[],(err)=>{
 
 
 
-export {db}
+export default db

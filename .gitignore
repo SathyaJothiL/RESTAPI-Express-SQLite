@@ -142,4 +142,4 @@ dist
 dosomething.js
 
 # Ignore database file inside the models folder
-models/MYDb.db 
+./models/MYdb.db 

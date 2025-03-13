@@ -1,4 +1,4 @@
-import {db} from './connectDB.js'
+import db from './connectDB.js'
 
 const createInDb = (data,callback)=>{
     let sql = `INSERT INTO tutorials
@@ -6,8 +6,7 @@ const createInDb = (data,callback)=>{
                 VALUES(?,?,?)`
     db.run(sql,[data.title,data.description,data.published],function(err){
         if(err){
-            console.log("Error in createInDB function");
-           console.log(err.message);    
+            console.log("Error inserting into database");   
             callback(err,null)
             return
         }
@@ -23,11 +22,11 @@ const getAllInDb = (callback)=>{
     let sql = 'SELECT * FROM tutorials'
     db.all(sql,[],(err,rows)=>{
         if(err){
-            console.log("error in getAllDB function");
-            console.log(err.message);
+            console.log("Error getting all tutorial data from database");
             callback(err,null)
             return
         }
+        console.log("Tutorial data selected successfully from database");
         rows.forEach(row=>responseData.tutorials.push(row))
         callback(null,responseData)
     })
@@ -38,10 +37,11 @@ const getAllPublishedInDb = (callback)=>{
     let sql = `SELECT * FROM tutorials WHERE published ='true'`
     db.all(sql,[],(err,rows)=>{
         if(err){
-            console.log(err.message);
+            console.log("Error getting all published tutorial data");
             callback(err,null)
             return
         }
+        console.log("Published tutorial data selected successfully from database");
         responseData.tutorials = rows
         callback(null,responseData)
     })
@@ -51,10 +51,11 @@ const findOneinDb = (id,callback)=>{
     let sql = `SELECT * FROM tutorials WHERE id = ${id}`
     db.get(sql,[],function(err,row){
         if(err){
-            console.log(err.message);
+            console.log(`"Error getting tutorial with id${id}"`);
             callback(err,null)
             return  
         }
+        console.log(`"Tutorial data with id ${id} selected successfully from database"`);
         callback(null,row)
     })
 }
@@ -67,15 +68,16 @@ const updateInDb = (id,data,callback)=>{
                 WHERE id = ${id}`
     db.run(sql,[data.title,data.description,data.published],function(err){
         if(err){
-            console.log(err.message);
+            console.log("Error updating in database");
             callback(err,null)
             return
         }
         if(this.changes===1){
+            console.log(`"Tutorial data with ${id} updated successfully from database"`);
             let responseData = {id:id, ...data}
             callback(null,responseData)
         }else{
-            let err = new Error("Not updated")
+            console.log("No rows affected in updating rows in Database");
             callback(err,null)
         }
     })
@@ -86,15 +88,15 @@ const deleteInDb = (id,callback)=>{
     let sql = `DELETE FROM tutorials WHERE id = ?`
     db.run(sql,[id],function(err){
         if(err){
-            console.log("Error in deleting in Database");
+            console.log("error in deleting rows in Database");
             callback(err,null)
         }
         if(this.changes===1){
-            let responseData = `data with id ${id} deleted`  
+            let responseData = `Data with id ${id} deleted successfully`  
             callback(null,responseData)
         }else{
-            let err= new Error("Error in dleting")
-            callback(err)
+            console.log("No rows affected in deleting rows in Database");
+            callback(err,null)
         }
     })
 }
@@ -103,10 +105,10 @@ const deleteAllInDb = (callback)=>{
     let sql = `DELETE FROM tutorials`
     db.run(sql,[],function(err){
         if(err){
-            console.log("Error in deleting all rows");
+            console.log("Error in deleting all rows in database");
             callback(err,null)
         }else{
-            let responseData =`All rows deleted`
+            let responseData =`All rows deleted successfully`
             callback(null,responseData)
         }
     })

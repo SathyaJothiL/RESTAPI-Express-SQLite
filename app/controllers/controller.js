@@ -1,10 +1,13 @@
 import { createInDb,getAllInDb,getAllPublishedInDb,findOneinDb,updateInDb,deleteInDb,deleteAllInDb } from "../models/tutorial.model.js";
 
-const create = (req,res)=>{
+const create = (req,res,next)=>{
     //validate incoming request
+    console.log(req.body);
+    
     if(!req.body){
-        res.status(400)
-        res.send({message:"Contetn cannot be empty"})
+        let err = new Error("Please provide tutorial data")
+        err.status = 400
+        next(err)
     }
 
     //create object for db
@@ -14,101 +17,96 @@ const create = (req,res)=>{
         published : req.body.published
     }
 
-    function callback(err,result){
+    createInDb(tutorialData,(err,result)=>{
         if(err){
-            res.status(500)
-            res.send({message:"Error while creating"})
-            return
+            return next(err)
+        }else{
+            res.status(201).json(result)
         }
-        res.status(200)
-        res.send(result)
-    }
-    createInDb(tutorialData,callback)
+    })
 }
 
 
-const findall = (req,res)=>{
+const findall = (req,res,next)=>{
 
     getAllInDb((err,result)=>{
         if(err){
             console.log("Error in findall route");
-            console.log(err.message);
-            return
+            return next(err)
         }
-        res.status(201)
-        res.send(result)
+        res.status(200).json(result)
     })
 }
 
-const findAllPublished = (req,res)=>{
+const findAllPublished = (req,res,next)=>{
     getAllPublishedInDb((err,result)=>{
         if(err){
             console.log("Error in published route");
-
-            return
+            return next(err)
         }
-        res.status(201)
-        res.send(result)
+        res.status(200).json(result)
     })
 }
 
-const findOne = (req,res)=>{
+const findOne = (req,res,next)=>{
     let id = parseInt(req.params.id)
     if(isNaN(id)){
-        res.status(400).send("Invalid Id")
+        let err = new Error("Please provide tutorial data")
+        err.status = 400
+        next(err)
     }else{
         findOneinDb(id,(err,result)=>{
             if(err){
                 console.log("error in get one route");
-                res.send("error")
-                return
+                return next(err)
             }else{
-                res.send(result)
+                res.status(200).json(result)
             }
         })
     }
 }
 
-const update = (req,res)=>{
+const update = (req,res,next)=>{
     let id = parseInt(req.params.id)
     if(isNaN(id)){
-        res.status(400).send("Invalid Id")
-
+        let err = new Error("Please provide tutorial data")
+        err.status = 400
+        next(err)
     }else{
         let data = req.body
         updateInDb(id,data,(err,result)=>{
             if(err){
-                console.log("error in update");
-                res.send("error")
-                return
+                console.log("Error in update");
+                return next(err)
             }
-            res.send(result)
+            res.status(201).json(result)
         })
     }
 }
 
-const deleteOne = (req,res)=>{
+const deleteOne = (req,res,next)=>{
     let id = parseInt(req.params.id)
     if(isNaN(id)){
-        res.status(400).send("Invalid ID")
+        let err = new Error("Please provide tutorial data")
+        err.status = 400
+        next(err)
     }else{
         deleteInDb(id,(err,result)=>{
             if(err){
-                res.status(500).send("Error")
-                return
+                return next(err)
             }
-            res.status(201).send(result)
+            res.status(200).json(result)
         })
     }
 }
 
-const deleteAll = (req,res)=>{
+const deleteAll = (req,res,next)=>{
     deleteAllInDb((err,result)=>{
         if(err){
-            console.log(err.message);
-            res.status(500).send("error")
+            console.log("Error in delete route");
+            next(err)
         }else{
-            res.send(result)
+            res.status(200).json(result)
         }
     })
 }
